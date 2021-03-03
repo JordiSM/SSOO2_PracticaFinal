@@ -24,7 +24,7 @@ int main(int argc, char **argv){
         int nbloques = atoi(argv[2]); //conversion a int
 
         unsigned const char *buff [BLOCKSIZE];
-        memset(buff, 1, sizeof(buff)); // iniciar a 0 todos los elementos del array
+        memset(buff, 0, sizeof(buff)); // iniciar a 0 todos los elementos del array
 
         for(int i = 0; i < nbloques; i++){
             if((bwrite(i, buff)) == 1){
