@@ -1,4 +1,4 @@
-#include "bloques.h"
+#include "ficheros_basico.h"
 
 /*
   FORMATO DE USO:
@@ -31,7 +31,22 @@ int main(int argc, char **argv){
                 exit(EXIT_FAILURE);
             }
         }
+
+        // ---------------------------  NIVEL 2  ------------------------------
+
+        unsigned int ninodos = nbloques/4;
+
+        if(initSB(nbloques, ninodos) == 1){
+            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+            exit(EXIT_FAILURE);
+        }
         
+        initMB();
+        initAI();
+
+
+
+
         bumount();
     }
 }
