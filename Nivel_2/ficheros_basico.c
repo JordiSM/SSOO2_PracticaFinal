@@ -28,7 +28,7 @@ int initSB(unsigned int nbloques, unsigned int ninodos){
 
     SB.posPrimerBloqueMB = posSB + tamSB;
     SB.posUltimoBloqueMB = SB.posPrimerBloqueMB + tamMB(nbloques) - 1;
-    SB.posPrimerBloqueAI = SB.posUltimoBloqueAI + 1;
+    SB.posPrimerBloqueAI = SB.posUltimoBloqueMB + 1;
     SB.posUltimoBloqueAI = SB.posPrimerBloqueAI + tamAI(ninodos) - 1;
     SB.posPrimerBloqueDatos = SB.posUltimoBloqueAI + 1;
     SB.posUltimoBloqueDatos = nbloques - 1;
@@ -103,7 +103,7 @@ int initAI(){
 
         //En cada bloque hay BLOCKSIZE/INODOSIZE = 8 inodos
         for(j = 0; j < BLOCKSIZE/INODOSIZE; j++){
-            inodos[j].tipo = "l";   //Señalamos tipo "l" ---> libre
+            inodos[j].tipo = 'l';   //Señalamos tipo "l" ---> libre
 
             //Si hay nodos libres aún inicializamos el primer elemento con la posición
             //que ocupa en la liste. Si es el último apuntará a UINT_MAX

@@ -10,9 +10,9 @@
 int main(int argc, char **argv){
     
     if(argc < 3){
-
-        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        perror("Error, número de argumentos no válidos");
+        printf("Error, número de argumentos no válidos\n");
+        printf("Formato de uso :\n\t./mi_mkfs \"nombre_de_memoria\" \"numero_de_bloques\" #COMENTARIOS\n");
+        fflush(stdout);
         return EXIT_FAILURE;
 
     }else{
@@ -38,15 +38,20 @@ int main(int argc, char **argv){
 
         if(initSB(nbloques, ninodos) == 1){
             fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+            printf("Error en la función initSB()");
             exit(EXIT_FAILURE);
         }
         
-        initMB();
-        initAI();
-
-
-
-
+        if(initMB() == 1){
+            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+            printf("Error en la función initMB()");
+            exit(EXIT_FAILURE);
+        }
+        if(initAI() == 1){
+            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+            printf("Error en la función initAI()");
+            exit(EXIT_FAILURE);
+        }
         bumount();
     }
 }
