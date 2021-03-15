@@ -76,7 +76,7 @@ int initMB(){
     for(int i = SB.posPrimerBloqueMB; i < last; i++){
         if(bwrite(i,&bufferMB)== 1){
             fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-            return 1;
+            return EXIT_FAILURE;
         }
     }
     
@@ -85,6 +85,42 @@ int initMB(){
 
 int initAI(){
 
-    return 0;
+    struct inodo inodos[BLOCKSIZE/INODOSIZE];
+    struct superbloque SB;
+    int contInodos, i, j;
 
+    if (bread(posSB, &SB) == 1){
+        //Error a la hora de leer la posición del SuperBloque en el Fichero
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return EXIT_FAILURE;
+    }
+
+    //Primera posición del primer Inodo libre
+    contInodos = SB.posPrimerInodoLibre + 1;
+
+    //Recorremos desde el primer bloque hasta el último
+    for(i = SB.posPrimerBloqueAI; i <= SB.posUltimoBloqueAI; i++){
+
+        //En cada bloque hay BLOCKSIZE/INODOSIZE = 8 inodos
+        for(j = 0; j < BLOCKSIZE/INODOSIZE; j++){
+            inodos[j].tipo = "l";   //Señalamos tipo "l" ---> libre
+
+            //Si hay nodos libres aún inicializamos el primer elemento con la posición
+            //que ocupa en la liste. Si es el último apuntará a UINT_MAX
+            if(contInodos < SB.totInodos){
+                inodos[j].punterosDirectos[0] = contInodos;
+                contInodos++;
+            }else{
+                inodos[j].punterosDirectos[0] = UINT_MAX;
+            }
+        }
+
+        //Escribimos
+        if(bwrite(i,&inodos) == 1){
+            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+            return EXIT_FAILURE;
+        }
+    }
+
+    return 0;
 }
