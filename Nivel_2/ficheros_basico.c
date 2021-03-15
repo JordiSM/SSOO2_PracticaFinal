@@ -1,3 +1,10 @@
+/*
+AUTORES: 
+    Diaz Jimenez, Iker
+    Moreno Martínez, Jogil
+    Sevilla Marí, Jordi
+*/
+
 #include "ficheros_basico.h"
 
 int tamMB(unsigned int nbloques){

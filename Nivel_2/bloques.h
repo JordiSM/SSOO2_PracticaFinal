@@ -1,3 +1,10 @@
+/*
+AUTORES: 
+    Diaz Jimenez, Iker
+    Moreno Martínez, Jogil
+    Sevilla Marí, Jordi
+*/
+
 //  INCLUDES
 #include <stdlib.h>         //  exit(), EXIT_SUCCESS, EXIT_FAILURE, atoi()
 #include <stdio.h>          //  printf(), fprintf(), stderr, stdout, stdin

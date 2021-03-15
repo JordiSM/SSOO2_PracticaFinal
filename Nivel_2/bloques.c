@@ -1,3 +1,10 @@
+/*
+AUTORES: 
+    Diaz Jimenez, Iker
+    Moreno Martínez, Jogil
+    Sevilla Marí, Jordi
+*/
+
 #include "bloques.h"
 
 //  VARIABLES

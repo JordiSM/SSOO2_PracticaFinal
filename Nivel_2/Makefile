@@ -1,3 +1,10 @@
+#
+# AUTORES: 
+#     Diaz Jimenez, Iker
+#     Moreno Martínez, Jogil
+#     Sevilla Marí, Jordi
+#
+
 CC=gcc
 CFLAGS=-c	-g	-Wall	-std=gnu99
 #LDFLAGS=-pthread

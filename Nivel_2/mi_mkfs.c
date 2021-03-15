@@ -1,9 +1,18 @@
+/*
+AUTORES: 
+    Diaz Jimenez, Iker
+    Moreno Martínez, Jogil
+    Sevilla Marí, Jordi
+
+FORMATO DE USO:
+
+ ./mi_mkfs "nombre_de_memoria" "numero_de_bloques" #COMENTARIOS
+    
+*/
+
 #include "ficheros_basico.h"
 
 /*
-  FORMATO DE USO:
-
- ./mi_mkfs "nombre_de_memoria" "numero_de_bloques" #COMENTARIOS
 
 */
 
