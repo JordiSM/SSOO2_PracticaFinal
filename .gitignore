@@ -1,2 +1,6 @@
-Nivel_2/prueba.txt
+*/prueba.txt
+*/*.o
+*/disco
+*/leer_sf
+*/mi_mkfs
 .vscode/settings.json
