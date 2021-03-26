@@ -336,17 +336,115 @@ int liberar_bloque(unsigned int nbloque){
 
 
 int escribir_inodo(unsigned int ninodo, struct inodo inodo){
-    return 0;
+    struct inodo inodos[BLOCKSIZE/INODOSIZE]; 
+    struct superbloque SB;
+    int pos_bloque, num_bloque;
+
+    //Leemos superbloque
+    if(bread(posSB, &SB) == 1){
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return EXIT_FAILURE;
+    }
+
+    //Obtenemos nº de bloque del array
+    num_bloque = (ninodo * INODOSIZE) / BLOCKSIZE;
+
+    //obtenemos la localización donde queremos escribir el inodo
+    pos_bloque = num_bloque + SB.posPrimerBloqueAI;
+
+    if(bread(pos_bloque,inodos) == 1){
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return EXIT_FAILURE;
+    }
+    //escribir en el buffer el contenido que nos pasan por parámetro
+    inodos[ninodo % (BLOCKSIZE/INODOSIZE)] = inodo;
+
+    //escritura del array de inodos en el dispositivo virtual
+    return bwrite(pos_bloque, inodos);
 }
 
 
 
 int leer_inodo(unsigned int ninodo, struct inodo *inodo){
+    struct inodo inodos[BLOCKSIZE/INODOSIZE];
+    struct superbloque SB;
+    int pos_bloque, num_bloque;
+
+    //Leemos superbloque
+    if(bread(posSB, &SB) == 1){
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return EXIT_FAILURE;
+    }
+
+    //Obtenemos el nº de bloque del array
+    num_bloque = (ninodo * INODOSIZE) / BLOCKSIZE;
+    //obtenemos la localización donde queremos escribir el inodo
+    pos_bloque = num_bloque + SB.posPrimerBloqueAI; 
+    
+    if(bread(pos_bloque, inodos) == 1){
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return EXIT_FAILURE;
+    }
+    //apunto con el puntero a la dirección del inodo que deseamos
+    *inodo = inodos[ninodo % (BLOCKSIZE/INODOSIZE)];
+
+    //en caso de ir correctamente devovemos 0
     return 0;
 }
 
 
 
 int reservar_inodo(unsigned char tipo, unsigned char permisos){
-    return 0;
+
+    struct superbloque SB;
+    struct inodo inodos;
+    int posInodoReservado;
+
+    if(bread(posSB, &SB) == 1){
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return EXIT_FAILURE;
+    }
+
+    if(SB.cantInodosLibres <= 0){
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return EXIT_FAILURE;
+    }
+
+    posInodoReservado = SB.posPrimerInodoLibre;
+   
+    if(leer_inodo(posInodoReservado, &inodos) == 1){
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return EXIT_FAILURE;
+    }
+
+    SB.posPrimerInodoLibre = inodos.punterosDirectos[0];
+
+    inodos.tipo = tipo;
+    inodos.permisos = permisos;
+    inodos.nlinks = 1;
+    inodos.tamEnBytesLog = 0;
+    inodos.atime = time(null);
+    inodos.mtime = time(null);
+    inodos.ctime = time(null);
+    inodos.numBloquesOcupados = 0; 
+
+    for(int i = 0; i < 12; i++){
+        inodos.punterosDirectos[i] = 0;
+    }
+
+    for(int i = 0; i < 3; i++){
+        inodos.punterosIndirectos[i] = 0;
+    }
+
+    if(escribir_inodo(posInodoReservado, inodos) == 1){
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return EXIT_FAILURE;
+    }
+
+    if(bwrite(posSB, &SB) == 1){
+        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+        return EXIT_FAILURE;
+    }
+
+    return posInodoReservado;
 }
