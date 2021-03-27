@@ -27,7 +27,7 @@ int main(int argc, char **argv){
         }
 
         struct superbloque sb;
-        struct inodo inodos[BLOCKSIZE/INODOSIZE];
+        //struct inodo inodos[BLOCKSIZE/INODOSIZE];
 
         if(bread(0, &sb) == 1){
             exit(EXIT_FAILURE);
@@ -52,6 +52,7 @@ int main(int argc, char **argv){
         printf ("sizeof struct inodo is: %lu\n", sizeof(struct inodo));
         printf ("\n\n");
         
+        /*
         printf("RECORRIDO LISTA ENLAZADA DE INODOS LIBRES\n");
         for(int i = sb.posPrimerBloqueAI; i <= sb.posUltimoBloqueAI; i++){
             if(bread(i, &inodos)==1){
@@ -64,7 +65,58 @@ int main(int argc, char **argv){
             printf("\n");
             fflush(stdout);
         }
+        */
+
+        printf ("RESERVAMOS UN BLOQUE Y LUEGO LO LIBERAMOS\n");
         
+        unsigned int bloqueReservado = reservar_bloque();
+        if(bloqueReservado == EXIT_FAILURE){
+            exit(EXIT_FAILURE);
+        }
+        printf ("Se ha reservado el bloque físico nº %u que era el %uº libre indicado por el MB\n", bloqueReservado, (bloqueReservado - sb.posUltimoBloqueAI));
+       fflush(stdout);
+        if(bread(0, &sb) == 1){
+            exit(EXIT_FAILURE);
+        }
+
+        printf ("cantBloquesLibres = %u\n", sb.cantBloquesLibres);                 // Cantidad de bloques libres
+        
+        printf ("Liberamos ese bloque\n");
+        if(liberar_bloque(bloqueReservado) == EXIT_FAILURE){
+            exit(EXIT_FAILURE);
+        }
+        
+        if(bread(0, &sb) == 1){
+            exit(EXIT_FAILURE);
+        }
+
+        printf ("cantBloquesLibres = %u\n", sb.cantBloquesLibres);                 // Cantidad de bloques libres
+       fflush(stdout);
+
+        printf ("DATOS DEL DIRECTORIO RAIZ\n");
+        struct tm *ts;
+        char atime[80];
+        char mtime[80];
+        char ctime[80];
+
+        struct inodo innodo;
+        int ninodo = 1;
+        
+        leer_inodo(ninodo, &innodo);
+        printf ("tipo: %u\n", innodo.tipo);
+        printf ("permisos: %u\n", innodo.permisos);
+
+        ts = localtime(&innodo.atime);
+        strftime(atime, sizeof(atime), "%a %Y-%m-%d %H:%M:%S", ts);
+        ts = localtime(&innodo.mtime);
+        strftime(mtime, sizeof(mtime), "%a %Y-%m-%d %H:%M:%S", ts);
+        ts = localtime(&innodo.ctime);
+        strftime(ctime, sizeof(ctime), "%a %Y-%m-%d %H:%M:%S", ts);
+        printf("ID: %d\n ATIME: %s\n MTIME: %s\n CTIME: %s\n",ninodo,atime,mtime,ctime);
+        
+        printf ("nlinks: %u\n", innodo.nlinks);
+        printf ("tamEnBytesLog: %u\n", innodo.tamEnBytesLog);
+        printf ("nbloquesOcupados: %u\n", innodo.numBloquesOcupados);
         bumount();
     }
 }

@@ -4,7 +4,7 @@ AUTORES:
     Moreno Martínez, Jogil
     Sevilla Marí, Jordi
 */
-
+#include <time.h>
 #include "bloques.h"
 #include <limits.h>
 

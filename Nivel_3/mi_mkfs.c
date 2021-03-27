@@ -61,6 +61,16 @@ int main(int argc, char **argv){
             printf("Error en la función initAI()");
             exit(EXIT_FAILURE);
         }
+
+        // ---------------------------  NIVEL 3  ------------------------------
+        
+        if(reservar_inodo('d', 7) == -1) { // Aquí se pone -1, debido a que puede 
+                                           // resultar el caso de reservar el inodo 1
+            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+            printf("Error en la función initMB()");
+            exit(EXIT_FAILURE);
+        }
+        
         bumount();
     }
 }

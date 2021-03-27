@@ -171,9 +171,9 @@ int escribir_bit(unsigned int nbloque, unsigned int bit){
     mascara >>= posbit;
 
     if(bit == 0){
-        bufferMB[posbyte] &= ~mascara  // operadores AND y NOT para bits
+        bufferMB[posbyte] &= ~mascara;  // operadores AND y NOT para bits
     } else if(bit == 1){
-        bufferMB[posbyte] | = mascara   //  operador OR para bits
+        bufferMB[posbyte] |= mascara;   //  operador OR para bits
     } else {
         fprintf(stderr, "Error en Escribir_bit: parámetro \"bit\" no válido\n");
         return EXIT_FAILURE;
@@ -231,7 +231,7 @@ char leer_bit(unsigned int nbloque){
 
 int reservar_bloque(){
     struct superbloque SB;
-    int posBloqueMB, posbyte;
+    unsigned int posBloqueMB, posbyte;
     unsigned char bufferAux[BLOCKSIZE];
     unsigned char bufferMB[BLOCKSIZE];
     unsigned char mascara = 128;
@@ -272,7 +272,7 @@ int reservar_bloque(){
         }
     }
 
-    posbit = 0;
+    unsigned int posbit = 0;
 
     // encontrar el primer bit a 0 en ese byte
     while (bufferMB[posbyte] & mascara) { // operador AND para bits
@@ -281,7 +281,7 @@ int reservar_bloque(){
     }
 
     //Para determinar el bloque que podemos reservar
-    nbloque = ((posBloqueMB - SB.posPrimerBloqueMB) * BLOCKSIZE + posbyte) * 8 + posbit;
+    unsigned int nbloque = ((posBloqueMB - SB.posPrimerBloqueMB) * BLOCKSIZE + posbyte) * 8 + posbit;
 
     //Escribimos para indicar que ese bloque está reservado
     if(escribir_bit(nbloque, 1) == 1){
@@ -402,19 +402,19 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos){
 
     if(bread(posSB, &SB) == 1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     if(SB.cantInodosLibres <= 0){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     posInodoReservado = SB.posPrimerInodoLibre;
    
     if(leer_inodo(posInodoReservado, &inodos) == 1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     SB.posPrimerInodoLibre = inodos.punterosDirectos[0];
@@ -423,9 +423,9 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos){
     inodos.permisos = permisos;
     inodos.nlinks = 1;
     inodos.tamEnBytesLog = 0;
-    inodos.atime = time(null);
-    inodos.mtime = time(null);
-    inodos.ctime = time(null);
+    inodos.atime = time(NULL);
+    inodos.mtime = time(NULL);
+    inodos.ctime = time(NULL);
     inodos.numBloquesOcupados = 0; 
 
     for(int i = 0; i < 12; i++){
@@ -438,12 +438,12 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos){
 
     if(escribir_inodo(posInodoReservado, inodos) == 1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     if(bwrite(posSB, &SB) == 1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     return posInodoReservado;
