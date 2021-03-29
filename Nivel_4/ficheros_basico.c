@@ -474,3 +474,145 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos){
 
     return posInodoReservado;
 }
+
+int obtener_nRangoBL (struct inodo inodo, unsigned int nblogico, unsigned int *ptr){
+    if(nblogico < DIRECTOS){
+        *ptr = inodo.punterosDirectos[nblogico];
+        return 0;
+    }else if(nblogico < INDIRECTOS0){
+        *ptr = inodo.punterosDirectos[0];
+        return 1;
+    }else if(nblogico < INDIRECTOS1){
+        *ptr = inodo.punterosDirectos[1];
+        return 2;
+    }else if(nblogico < INDIRECTOS2){
+        *ptr = inodo.punterosDirectos[2];
+        return 3;
+    }else{
+        *ptr = 0;
+        fprintf(stderr, "Bloque lógico fuera de rango \n");
+        return -1;
+    }
+}
+
+int obetener_indice (unsigned int nblogico, unsigned int nivel_punteros){
+    if(nblogico < DIRECTOS){
+
+        return nblogico;
+    
+    }else if(nblogico < INDIRECTOS0){
+        
+        return nblogico - DIRECTOS;
+    
+    }else if(nblogico < INDIRECTOS1){
+    
+        if(nivel_punteros == 2){
+    
+            return (nblogico - INDIRECTOS0)/NPUNTEROS;
+    
+        }else if(nivel_punteros == 1){
+    
+            return (nblogico - INDIRECTOS0) % NPUNTEROS;
+    
+        }
+    
+    }else if(nblogico < INDIRECTOS2){
+    
+        if(nivel_punteros == 3){
+    
+            return (nblogico - INDIRECTOS1) / (NPUNTEROS * NPUNTEROS);
+    
+        }else if(nivel_punteros == 2){
+    
+            return ((nblogico - INDIRECTOS1) % (NPUNTEROS * NPUNTEROS)) / NPUNTEROS;
+    
+        }else if(nivel_punteros == 1){
+    
+            return ((nblogico - INDIRECTOS1) % (NPUNTEROS * NPUNTEROS)) % NPUNTEROS;
+    
+        }
+    }
+}
+
+int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reservar){
+    struct inodo inodo;
+    int ptr;
+    int ptr_ant;
+    int salvar_inodo;
+    int nRangoBL;
+    int nivel_punteros;
+    int indice;
+    int buffer[NPUNTEROS];
+
+    leer_inodo(ninodo, &inodo);
+
+    ptr = ptr_ant = salvar_inodo = 0;
+
+    nRangoBL = obtener_nRangoBL(inodo, nblogico, &ptr);
+    nivel_punteros = nRangoBL;
+
+    while(nivel_punteros > 0){
+
+        if(ptr > 0){
+            if(reservar = 0){
+                return -1;
+            }else{
+               salvar_inodo = 1;
+               ptr = reservar_bloque(); //de punteros         
+               inodo.numBloquesOcupados++;
+               inodo.ctime = time(NULL); //fecha actual
+               if(nivel_punteros == nRangoBL ){
+                    inodo.punterosIndirectos[nRangoBL-1] = ptr;
+               } else {
+                    buffer[indice] = ptr; // (imprimirlo para test)
+                    if(bwrite(ptr_ant, buffer) == EXIT_FAILURE){
+                        fprintf(stderr, "Error en bwrite() en traducir_bloque_inodo %d: %s\n", errno, strerror(errno));
+                        return EXIT_FAILURE;
+                    }   
+               }
+            }
+        }
+        
+        if(bread(ptr, buffer) == 1){
+            printf("Error bread() en traducir_bloque_inodo");
+            return(EXIT_FAILURE);
+        }
+
+        indice = obetener_indice(nblogico, nivel_punteros);
+        ptr_ant = ptr;
+        ptr = buffer[indice];
+        nivel_punteros--;
+    }
+
+    if(ptr == 0){
+        if(reservar == 0){
+            return -1;
+        }else{
+        
+            salvar_inodo = 1;
+            ptr = reservar_bloque();
+            inodo.numBloquesOcupados++;
+            inodo.ctime = time(NULL);
+            if(nRangoBL == 0){
+                inodo.punterosDirectos[nblogico] = ptr;
+            } else {
+                buffer[indice] = ptr;
+                
+                if(bwrite(ptr_ant, &buffer) == EXIT_FAILURE){
+                    printf("Error en bwrite de traducir_bloque_inodo()\n");
+                    return -1;
+                }
+            }
+        }
+    }
+    
+     if(salvar_inodo==1){
+         if(escribir_inodo(ninodo, inodo)==1){
+             printf("Error en escribir_inodo de traducir_bloque_inodo()\n");
+             return -1;
+         } //sólo si lo hemos actualizado
+     }
+
+    return ptr;
+}
+
