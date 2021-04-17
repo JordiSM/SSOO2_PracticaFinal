@@ -157,7 +157,7 @@ printf ("RESERVAMOS UN BLOQUE Y LUEGO LO LIBERAMOS\n");
         printf("[leer_bit(%d) --> pos_byte: %d posbit: %d nbloqueMB: nbloqueabs: ] \n", sb.posUltimoBloqueDatos, sb.posUltimoBloqueDatos / 8, sb.posUltimoBloqueDatos % 8 );
         printf("leer_bit(%d) = %d \n", sb.posUltimoBloqueDatos, leer_bit(sb.posUltimoBloqueDatos));
         */
-
+        /*
         int ninodo = reservar_inodo('f', 6);
         if (ninodo == -1) {
             fprintf(stderr, "Error \n");
@@ -202,6 +202,7 @@ printf ("RESERVAMOS UN BLOQUE Y LUEGO LO LIBERAMOS\n");
         }
         
         printf("Primer inodo libre: %d\n", sb.posPrimerInodoLibre);
-        bumount();
+        */
+       bumount();
     }
 }
