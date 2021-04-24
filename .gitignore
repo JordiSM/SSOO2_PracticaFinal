@@ -1,6 +1,16 @@
 */*.txt
+*.txt
 */*.o
 */disco
 */leer_sf
 */mi_mkfs
+*/leer
+*/permitir
+*/truncar
+*/escribir
+*/*.zip
+*.zip
+*/*.tar
+*.tar.gz
+*/*.sh
 .vscode/settings.json
