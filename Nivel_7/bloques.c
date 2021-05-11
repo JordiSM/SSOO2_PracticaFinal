@@ -20,7 +20,7 @@ int bmount(const char *camino){     //
 
     if(descriptor < 0){ //error en la apertura del descriptor
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     return descriptor;
@@ -35,7 +35,7 @@ int bumount(){
 
     if (estado < 0){        //Error en el cierre del fichero
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     return estado; // EXIT_SUCCESS
@@ -53,12 +53,12 @@ int bwrite(unsigned int nbloque, const void *buf){
 
     if(lseek(descriptor, desplazamiento, SEEK_SET) < 0){   //Error en el desplazamiento
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
     
     if((write(descriptor, buf, BLOCKSIZE)) != BLOCKSIZE){ //Error escribiendo el bloque 
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
         
     return BLOCKSIZE;
@@ -76,12 +76,12 @@ int bread(unsigned int nbloque, void *buf){
 
     if(lseek(descriptor, desplazamiento, SEEK_SET) < 0){   //Error en el desplazamiento
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     if((read(descriptor, buf, BLOCKSIZE)) != BLOCKSIZE){    //Error leyendo el bloque
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
     
     return BLOCKSIZE;

@@ -54,17 +54,17 @@ int initMB(){
     struct superbloque SB;
     int i, j, k;
 
-    if (bread(0, &SB) == 1) return EXIT_FAILURE; // Leemos superbloque
+    if (bread(0, &SB) == -1) return -1; // Leemos superbloque
     for (i = 0; i < SB.posPrimerBloqueMB; i++) { // Superbloque
-        if (escribir_bit(i, 1) == 1) return EXIT_FAILURE;
+        if (escribir_bit(i, 1) == -1) return -1;
         SB.cantBloquesLibres--;
     }
     for (j = SB.posPrimerBloqueMB; j <= SB.posUltimoBloqueMB; j++) { // Mapa de bits
-        if (escribir_bit(j, 1) == 1) return EXIT_FAILURE;
+        if (escribir_bit(j, 1) == -1) return -1;
         SB.cantBloquesLibres--;
     }
     for (k = SB.posPrimerBloqueAI; k <= SB.posUltimoBloqueAI; k++) { // Array de inodos
-        if (escribir_bit(k, 1) == 1) return EXIT_FAILURE;
+        if (escribir_bit(k, 1) == -1) return -1;
         SB.cantBloquesLibres--;
     }
 
@@ -72,10 +72,10 @@ int initMB(){
     memset(bufferMB, 0, sizeof(bufferMB));
 
     for(int i = SB.posPrimerBloqueDatos; i <= SB.posUltimoBloqueDatos; i++){
-        if (escribir_bit(i, 0) == 1) return EXIT_FAILURE;
-        if (bwrite(i,&bufferMB)== 0){
+        if (escribir_bit(i, 0) == -1) return -1;
+        if (bwrite(i,bufferMB)== 0){
             fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-            return EXIT_FAILURE;
+            return -1;
         }
     }
 
@@ -88,10 +88,10 @@ int initAI(){
     struct superbloque SB;
     int contInodos, i, j;
 
-    if (bread(posSB, &SB) == 1){
+    if (bread(posSB, &SB) == -1){
         //Error a la hora de leer la posición del SuperBloque en el Fichero
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     //Primera posición del primer Inodo libre
@@ -115,9 +115,9 @@ int initAI(){
         }
 
         //Escribimos
-        if(bwrite(i,&inodos) == 1){
+        if(bwrite(i,&inodos) == -1){
             fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-            return EXIT_FAILURE;
+            return -1;
         }
     }
 
@@ -131,9 +131,9 @@ int escribir_bit(unsigned int nbloque, unsigned int bit){
     unsigned char bufferMB[BLOCKSIZE];
 
     //Leemos superbloque
-    if(bread(posSB,&SB) == 1){
+    if(bread(posSB,&SB) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     //Calculamos posición byte
@@ -160,7 +160,7 @@ int escribir_bit(unsigned int nbloque, unsigned int bit){
         bufferMB[posbyte] |= mascara;   //  operador OR para bits
     } else {
         fprintf(stderr, "Error en Escribir_bit: parámetro \"bit\" no válido\n");
-        return EXIT_FAILURE;
+        return -1;
     }
 
     //Escribimos en el dispositivo virtual
@@ -174,9 +174,9 @@ char leer_bit(unsigned int nbloque){
     unsigned char bufferMB[BLOCKSIZE];
 
     //Leemos superbloque
-    if(bread(posSB,&SB) == 1){
+    if(bread(posSB,&SB) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
 
@@ -196,9 +196,9 @@ char leer_bit(unsigned int nbloque){
     unsigned char mascara = 128;
 
     //Leemos posición absoluta
-    if(bread(nbloqueabs,bufferMB) == 1){
+    if(bread(nbloqueabs,bufferMB) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
 
@@ -218,7 +218,7 @@ int reservar_bloque(){
     unsigned char mascara = 128;
 
     //Leemos superbloque
-    if(bread(posSB,&SB) == 1){
+    if(bread(posSB,&SB) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
         return -1;
     }
@@ -235,7 +235,7 @@ int reservar_bloque(){
     for(posBloqueMB = SB.posPrimerBloqueMB; posBloqueMB <= SB.posUltimoBloqueMB; posBloqueMB++){
 
         //Leemos el bloque
-        if(bread(posBloqueMB, bufferMB) == 1){
+        if(bread(posBloqueMB, bufferMB) == -1){
             fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
             return -1;
         }
@@ -270,7 +270,7 @@ int reservar_bloque(){
     //printf("%d \n\n", posBloqueMB);
 
     //Escribimos para indicar que ese bloque está reservado
-    if(escribir_bit(nbloque, 1) == 1){
+    if(escribir_bit(nbloque, 1) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
         return -1;
     }
@@ -279,14 +279,14 @@ int reservar_bloque(){
     SB.cantBloquesLibres--;
 
     //Salvamos superbloque
-    if(bwrite(posSB, &SB) == 1){
+    if(bwrite(posSB, &SB) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
         return -1;
     }
 
     //Guardamos un buffer de 0s en pos nbloque por si hubiera basura
     memset(bufferAux, 0, BLOCKSIZE);
-    if(bwrite(nbloque, bufferAux) == 1){
+    if(bwrite(nbloque, bufferAux) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
         return -1;
     }
@@ -300,22 +300,22 @@ int liberar_bloque(unsigned int nbloque){
     struct superbloque SB;
 
     //Leemos superbloque
-    if(bread(posSB, &SB) == 1){
+    if(bread(posSB, &SB) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     //Ponemos a 0 el bloque del MB correspondiente
-    if(escribir_bit(nbloque, 0) == 1){
+    if(escribir_bit(nbloque, 0) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     //Incrementamos la cantidad de libres
     SB.cantBloquesLibres++;
     
     //Guardamos el superbloque
-    if(bwrite(posSB, &SB) == 1){
+    if(bwrite(posSB, &SB) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
         return -1;
     }
@@ -330,9 +330,9 @@ int escribir_inodo(unsigned int ninodo, struct inodo inodo){
     int pos_bloque, num_bloque;
 
     //Leemos superbloque
-    if(bread(posSB, &SB) == 1){
+    if(bread(posSB, &SB) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     //Obtenemos nº de bloque del array
@@ -341,9 +341,9 @@ int escribir_inodo(unsigned int ninodo, struct inodo inodo){
     //obtenemos la localización donde queremos escribir el inodo
     pos_bloque = num_bloque + SB.posPrimerBloqueAI;
 
-    if(bread(pos_bloque,inodos) == 1){
+    if(bread(pos_bloque,inodos) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
     //escribir en el buffer el contenido que nos pasan por parámetro
     inodos[ninodo % (BLOCKSIZE/INODOSIZE)] = inodo;
@@ -358,9 +358,9 @@ int leer_inodo(unsigned int ninodo, struct inodo *inodo){
     int pos_bloque, num_bloque;
 
     //Leemos superbloque
-    if(bread(posSB, &SB) == 1){
+    if(bread(posSB, &SB) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     //Obtenemos el nº de bloque del array
@@ -368,9 +368,9 @@ int leer_inodo(unsigned int ninodo, struct inodo *inodo){
     //obtenemos la localización donde queremos escribir el inodo
     pos_bloque = num_bloque + SB.posPrimerBloqueAI; 
     
-    if(bread(pos_bloque, inodos) == 1){
+    if(bread(pos_bloque, inodos) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
     //apunto con el puntero a la dirección del inodo que deseamos
     *inodo = inodos[ninodo % (BLOCKSIZE/INODOSIZE)];
@@ -386,7 +386,7 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos){
     int posInodoReservado;
 
     //Cargamos en el superbloque
-    if(bread(posSB, &SB) == 1){
+    if(bread(posSB, &SB) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
         return -1;
     }
@@ -400,7 +400,7 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos){
     //Obtenemos primer inodo libre
     posInodoReservado = SB.posPrimerInodoLibre;
    
-    if(leer_inodo(posInodoReservado, &inodos) == 1){
+    if(leer_inodo(posInodoReservado, &inodos) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
         return -1;
     }
@@ -430,13 +430,13 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos){
     SB.cantInodosLibres--;
 
     //escribir el inodo inicializado en la posición en la que estaba el primer inodo libre
-    if(escribir_inodo(posInodoReservado, inodos) == 1){
+    if(escribir_inodo(posInodoReservado, inodos) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
         return -1;
     }
 
     //Reescritura del superbloque
-    if(bwrite(posSB, &SB) == 1){
+    if(bwrite(posSB, &SB) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
         return -1;
     }
@@ -517,9 +517,9 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
     int buffer[NPUNTEROS];
 
     //Lectura del inodo
-    if (leer_inodo(ninodo, &inodo) == 1) {
+    if (leer_inodo(ninodo, &inodo) == -1) {
         printf("Error en lee_inodo\n");
-        return EXIT_FAILURE;
+        return -1;
     };
 
     ptr = ptr_ant = salvar_inodo = 0;
@@ -544,17 +544,17 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
                } else {
                     buffer[indice] = ptr; // (imprimirlo para test)
                     printf("[traducir_bloque_inodo()→ punteros_nivel%d[%d] = %d (reservado BF %d para BL %d)]\n", nivel_punteros, indice, buffer[indice], buffer[indice], nblogico);
-                    if(bwrite(ptr_ant, buffer) == EXIT_FAILURE){
+                    if(bwrite(ptr_ant, buffer) == -1){
                         fprintf(stderr, "Error en bwrite() en traducir_bloque_inodo %d: %s\n", errno, strerror(errno));
-                        return EXIT_FAILURE;
+                        return -1;
                     }   
                }
             }
         }
         
-        if(bread(ptr, buffer) == 1){
+        if(bread(ptr, buffer) == -1){
             printf("Error bread() en traducir_bloque_inodo");
-            return(EXIT_FAILURE);
+            return(-1);
         }
 
         indice = obtener_indice(nblogico, nivel_punteros);
@@ -579,7 +579,7 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
             } else {
                 buffer[indice] = ptr;
                 printf("[traducir_bloque_inodo()→ punteros_nivel%d[%d] = %d (reservado BF %d para BL %d)]\n", nivel_punteros, indice, buffer[indice], buffer[indice], nblogico);
-                if(bwrite(ptr_ant, buffer) == EXIT_FAILURE){
+                if(bwrite(ptr_ant, buffer) == -1){
                     printf("Error en bwrite de traducir_bloque_inodo()\n");
                     return -1;
                 }
@@ -588,7 +588,7 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
     }
     
      if(salvar_inodo==1){
-         if(escribir_inodo(ninodo, inodo)==1){
+         if(escribir_inodo(ninodo, inodo)==-1){
              printf("Error en escribir_inodo de traducir_bloque_inodo()\n");
              return -1;
          } //sólo si lo hemos actualizado
@@ -597,300 +597,15 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
     return ptr;
 }
 
-int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offset, unsigned int nbytes){
-    struct inodo inodo;
-    char buf_bloque[BLOCKSIZE];
-    unsigned int primerBL, ultimoBL, desp1, desp2 ,nbfisico;
-    int bescritos = 0;
-
-    //Leemos el inodo
-    if(leer_inodo(ninodo, &inodo) == 1){
-        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
-    }
-
-    //Comprobamos en caso de que no sea un permiso de escritura
-    if((inodo.permisos & 2) != 2){
-        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
-    }
-
-    //Obtenemos primer bloque lógico
-    primerBL = offset /BLOCKSIZE;
-    //Obtenemos último bloque lógico
-    ultimoBL = (offset + nbytes - 1) / BLOCKSIZE;
-
-    //Calculamos desplazamiento en el bloque
-    desp1 = offset % BLOCKSIZE;
-    //Calculamos desplazamiento en el bloque para ber los nbytes
-    desp2 = (offset + nbytes - 1) % BLOCKSIZE;
-
-    //Comprobamos si cabe en un solo bloque
-    if(primerBL == ultimoBL){
-
-        //Obtenemos nº bloque físico
-        nbfisico = traducir_bloque_inodo(ninodo, primerBL, 1);
-
-        //Leemos el bloque físico
-        if(bread(nbfisico, buf_bloque) == 1){
-            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-            return EXIT_FAILURE;
-        }
-
-        //Escribimos en nbytes
-        memcpy(buf_bloque + desp1, buf_original, nbytes);
-
-        //Escribimos en el bloque físico
-        if(bwrite(nbfisico, buf_bloque) == 1){
-            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-            return EXIT_FAILURE;
-        }
-
-        //Actualizamos los bytes escritos
-        bescritos = desp2 - desp1 + 1;
-
-    }else{ // en caso de que la operación afecte a más de un bloque
-
-        nbfisico = traducir_bloque_inodo(ninodo,primerBL,1);
-
-        //almacenamos el resultado en el buffer
-        if(bread(nbfisico, buf_bloque) == 1){
-            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-            return EXIT_FAILURE;
-        }
-        
-        //copiamos los restantes bytes a buf_bloque
-        memcpy(buf_bloque + desp1, buf_original,BLOCKSIZE - desp1);
-    
-        //Escritura del buffer en el bloque físico
-        if(bwrite(nbfisico, buf_bloque) == 1){
-            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-            return EXIT_FAILURE;
-        }
-
-        //Bytes escritos
-        bescritos = BLOCKSIZE - desp1;
-
-        //Iteramos para cada bloque lógico intermedio i
-        for(int i = primerBL + 1; i < ultimoBL;i++){
-
-            nbfisico = traducir_bloque_inodo(ninodo, i, 1);
-
-            //lo volcamos al dispositivo en el bloque físico
-            if(bwrite(nbfisico,buf_original + (BLOCKSIZE - desp1) + (i - primerBL - 1) * BLOCKSIZE) == 1){
-                fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-                return EXIT_FAILURE;
-            }
-                
-            bescritos += BLOCKSIZE;
-        }
-
-        nbfisico = traducir_bloque_inodo(ninodo,ultimoBL,1);
-
-        //Lectura del bloque físico correspondiente y almacenamos el resutado en el buffer
-        if(bread(nbfisico,buf_bloque) == 1){
-            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-            return EXIT_FAILURE;
-        }
-        
-        //Copiamos los bytes a buf_bloque
-        memcpy(buf_bloque, buf_original + (nbytes - desp2 - 1), desp2 + 1);
-
-        //Escritura en la posición nbfisico correspondiente a ese bloque lógico
-        if(bwrite(nbfisico,buf_bloque) == 11){
-            fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-            return EXIT_FAILURE;
-        }
-
-        bescritos += desp2 + 1;
-    }
-
-    //Lectura del inodo actualizado
-    if(leer_inodo(ninodo, &inodo) == 1){
-        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
-    }
-
-    //Actualizamos el tamaño en bytes lógico, tamEnBytesLog, solo si hemos escrito más allá del final del fichero
-    if(offset + nbytes > inodo.tamEnBytesLog){ 
-        inodo.tamEnBytesLog = offset + nbytes;
-        //actualizar ctime
-        inodo.ctime = time(NULL);
-    }
-
-    //actualizar
-    inodo.mtime = time(NULL);
-    
-    //escribimos en inodo
-    if(escribir_inodo(ninodo, inodo) == 1){
-        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
-    }
-
-    //devolvemos los bytes escritos 
-    return bescritos; 
-    
-}
-
-int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsigned int nbytes){
-
-    struct inodo inodo;
-    int primerBL, ultimoBL, desp1, desp2, nbfisico;
-    int leidos = 0;
-
-    //Lectura del inodo
-    if(leer_inodo(ninodo, &inodo) == 1){
-        fprintf(stderr, "Error leer inodo %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
-    }
-
-    //averigua si se puede realizar la operación de lectura
-    if((inodo.permisos & 4) == 4){
-    
-        //En caso de que se quiera leer en una posición que no está dentro del EOF
-        if(offset >= inodo.tamEnBytesLog){
-            return leidos;
-        }
-        //en caso de que se pretenda leer más allá del EOF  
-        if((offset + nbytes) >= inodo.tamEnBytesLog){
-            nbytes = inodo.tamEnBytesLog - offset; 
-        }
-
-        primerBL = offset /BLOCKSIZE;
-        ultimoBL = (offset + nbytes - 1) / BLOCKSIZE;
-
-        desp1 = offset % BLOCKSIZE;
-        desp2 = (offset + nbytes - 1) % BLOCKSIZE;
-
-        unsigned char buf_bloque[BLOCKSIZE];
-
-        //lectura de un único bloque
-        if(primerBL == ultimoBL){ 
-            nbfisico = traducir_bloque_inodo(ninodo,primerBL,0); //reservar es igual a 0
-            if( nbfisico != -1){ // En caso de que haya un bloque físico
-                // Lectura del bloque
-                if(bread(nbfisico,buf_bloque) == 1){
-                    fprintf(stderr, "Error nbfisico%d: %s\n", errno, strerror(errno));
-                    return EXIT_FAILURE;
-                }
-                //Copiar datos al buffer original
-                memcpy(buf_original,buf_bloque + desp1, nbytes);                
-            }
-            // acumulación de bytes leidos
-            leidos = nbytes;
-        }else{ // En caso de que haya varios bloques por leer
-            // Primer bloque lógico
-            nbfisico = traducir_bloque_inodo(ninodo,primerBL,0); //reservar es igual a 0
-            if( nbfisico != -1){ // En caso de que haya un bloque físico asignado al bloque lógico
-                // Lectura del bloque
-                if(bread(nbfisico,buf_bloque) == 1){
-                    fprintf(stderr, "Error nbfisico lectura%d: %s\n", errno, strerror(errno));
-                    return EXIT_FAILURE;
-                }
-                //Copiar datos al buffer original
-                memcpy(buf_original,buf_bloque + desp1, BLOCKSIZE - desp1);                
-            }
-            // Acumulación de bytes leidos
-            leidos = BLOCKSIZE - desp1;
-            // Bloques intermedios
-            // Iterar para avanzar en los bloques que hay que escribir
-            for(int i = primerBL + 1; i < ultimoBL;i++){
-                // Guardamos el bloque fisico asociado al bloque lógico correspondiente
-                nbfisico = traducir_bloque_inodo(ninodo,i,0); 
-                if( nbfisico != -1){ // En caso de que haya un bloque físico asignado al bloque lógico
-                    // Lectura del bloque
-                    if(bread(nbfisico,buf_bloque) == 1){
-                        fprintf(stderr, "Error nbfisico lectura 2%d: %s\n", errno, strerror(errno));
-                        return EXIT_FAILURE;
-                    }
-                    //Copiar datos al buffer original 
-                    memcpy(buf_original + (BLOCKSIZE - desp1) + (i - primerBL - 1) * BLOCKSIZE, buf_bloque, BLOCKSIZE);                
-                }
-                // Actualizamos bytes leídos
-                leidos = leidos + BLOCKSIZE;
-            }
-            // Último bloque lógico
-            // Guardamos el bloque fisico relacionado con el ninodo pasado por parámetro
-            nbfisico = traducir_bloque_inodo(ninodo,ultimoBL,0); 
-            if(nbfisico != -1){
-                // Lectura del bloque entero para no sobreescribir posibles datos
-                if(bread(nbfisico,buf_bloque) == 1){
-                    fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-                    return EXIT_FAILURE;
-                }
-                // Escritura en la posición del bloque correspondiente del buffer original
-                memcpy(buf_original + (nbytes - desp2 - 1),buf_bloque, desp2 + 1);
-                
-            }
-            // Actualización de los bytes leídos
-            leidos = leidos + desp2 + 1;
-        }        
-
-    }else{ // No hay permisos de lectura
-        fprintf(stderr, "Error, no hay permisos de lectura %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
-    }
-    
-    // Finalmente actualizamos el atime del inodo
-    leer_inodo(ninodo, &inodo); // Leemos inodo
-	inodo.atime = time(NULL); // Actualizamos el último acceso
-	escribir_inodo(ninodo, inodo); // Salvamos el inodo
-    
-    //devolver bytes leidos
-    return leidos;
-}
-
-//Cambia los permisos de un fichero/directorio
-int mi_chmod_f(unsigned int ninodo, unsigned char permisos){
-    struct inodo inodo;
-
-    if(leer_inodo(ninodo, &inodo) == 1){
-        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
-    }
-
-    inodo.permisos = permisos;
-
-    //actualización
-    inodo.ctime = time(NULL);
-    
-    return escribir_inodo(ninodo, inodo);
-}
-
-//Devuelve la metainformación de un fichero/directorio con el valor que indique el argumento permisos
-int mi_stat_f(unsigned int ninodo, struct STAT *p_stat){
-
-    struct inodo inodo;
-
-    //Lectura inodo
-    if(leer_inodo(ninodo, &inodo) == 1){
-        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
-    }
-
-    //Guardar valores
-    p_stat -> tipo = inodo.tipo;
-    p_stat -> permisos = inodo.permisos;
-
-    p_stat -> atime = inodo.atime;
-    p_stat -> mtime = inodo.mtime;
-    p_stat -> ctime = inodo.ctime;
-
-    p_stat -> nlinks = inodo.nlinks;
-    p_stat -> tamEnBytesLog = inodo.tamEnBytesLog;
-    p_stat -> numBloquesOcupados = inodo.numBloquesOcupados;
-
-    return EXIT_SUCCESS;
-}
 
 int liberar_inodo(unsigned int ninodo){
     struct inodo inodo;
     struct superbloque SB;
 
     //Leemos el inodo
-    if(leer_inodo(ninodo,&inodo) == 1){
+    if(leer_inodo(ninodo,&inodo) == -1){
         fprintf(stderr, "Error leer inodo %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     //Liberamos los bloques
@@ -898,7 +613,7 @@ int liberar_inodo(unsigned int ninodo){
 
     if(bloquesLibres == -1){
         fprintf(stderr, "Error bloques libres%d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     fprintf(stdout, "Bloques liberados: %d", bloquesLibres);
@@ -910,9 +625,9 @@ int liberar_inodo(unsigned int ninodo){
     inodo.tamEnBytesLog = 0;
 
     //Leemos el superbloque
-    if(bread(posSB,&SB) == 1){
+    if(bread(posSB,&SB) == -1){
         fprintf(stderr, "Error en bread%d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
     //Apuntamos al primer inodo libre
@@ -923,14 +638,14 @@ int liberar_inodo(unsigned int ninodo){
     SB.cantInodosLibres++;
 
     //Escribimos en el inodo
-    if(escribir_inodo(ninodo,inodo) == 1){
+    if(escribir_inodo(ninodo,inodo) == -1){
         fprintf(stderr, "Error en escribir inodo%d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }
 
-    if(bwrite(posSB,&SB) == 1){
+    if(bwrite(posSB,&SB) == -1){
         fprintf(stderr, "Error en bwrite %d: %s\n", errno, strerror(errno));
-        return EXIT_FAILURE;
+        return -1;
     }  
 
     return EXIT_SUCCESS;    
@@ -981,7 +696,7 @@ int liberar_bloques_inodo(unsigned int primerBL,struct inodo *inodo){
             indice = obtener_indice(nBL, nivel_punteros);
             if(indice==0||nBL==primerBL){
                 
-                if(bread(ptr, bloques_punteros[nivel_punteros-1])==EXIT_FAILURE){
+                if(bread(ptr, bloques_punteros[nivel_punteros-1])==-1){
                     fprintf(stderr,"Error en bread");
                     return -1; //Modificacion de EXIT FAILURE a -1 por posible retorno de liberados=1
                 }

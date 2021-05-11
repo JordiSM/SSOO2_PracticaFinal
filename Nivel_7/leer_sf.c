@@ -32,19 +32,19 @@ int main(int argc, char **argv){
     if(argc < 2){
         fprintf(stderr, "Error, número de argumentos no válidos\n");
         fprintf( stderr, "Formato de uso :\n\t./mi_mkfs \"nombre_de_memoria\" \"numero_de_bloques\" #COMENTARIOS\n");
-        exit(EXIT_FAILURE);
+        exit(-1);
 
     }else{
         //montamos en el dispositivo
         if(bmount(argv[1])==1){
-            exit(EXIT_FAILURE);
+            exit(-1);
         }
 
         struct superbloque sb;
 
         //leemos el superbloque
         if(bread(0, &sb) == 1){
-            exit(EXIT_FAILURE);
+            exit(-1);
         }
 
         printf ("DATOS DEL SUPERBLOQUE\n");

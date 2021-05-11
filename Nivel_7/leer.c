@@ -21,13 +21,13 @@ int main(int argc, char **argv){
     //Control de error entrada incorrecta
     if(argc < 3){
         fprintf(stderr,"Uso: escribir \"nombre_dispositivo\" \"$(cat fichero)\" \"diferentes_inodos\".\n");
-        exit(EXIT_FAILURE);
+        exit(-1);
     }
 
     //Montamos el disco
-    if(bmount(argv[1]) == EXIT_FAILURE){
+    if(bmount(argv[1]) == -1){
         fprintf(stderr,"Error en bmount\n");
-        exit(EXIT_FAILURE);
+        exit(-1);
     }
 
     //Calculamos los bytes leidos
@@ -37,7 +37,7 @@ int main(int argc, char **argv){
     int bytestotal = 0;
 
     //Si no ha habido ningún error al calcular los bytes leidos
-    if(bytesleidos != EXIT_FAILURE){
+    if(bytesleidos != -1){
 
         //Mientras haya bytes por leer
         while( bytesleidos > 0){

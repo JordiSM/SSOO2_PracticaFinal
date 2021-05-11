@@ -12,13 +12,13 @@ int main(int argc, char **argv){
     // Verificamos si el número de argumentos introducido es válido
     if(argc != 4){
         fprintf(stderr, "Error, número de argumentos no válidos\n");
-        return EXIT_FAILURE;
+        return -1;
     }
 
     // Montamos el dispositivo con el nombre que se ha pasado por parámetro
-    if(bmount(argv[1]) == 1){
+    if(bmount(argv[1]) == -1){
         fprintf(stderr,"Error en el montaje del dispositivo\n");
-        return EXIT_FAILURE;
+        return -1;
     }
 
     // El número de bytes corresponde al argumento 4 que nos pasan por consola
@@ -29,15 +29,15 @@ int main(int argc, char **argv){
 
     if(nbytes == 0){
         // Si el inodo se encuentra vacío, únicamente liberamos el inodo
-        if(liberar_inodo(ninodo) == 1){
+        if(liberar_inodo(ninodo) == -1){
             fprintf(stderr, "Error en liberar_inodo\n");
-            exit(EXIT_FAILURE);
+            exit(-1);
         }
     }else{
         // Sino, truncamos la cantidad de bytes que se ha pasado por parámetro
-        if(mi_truncar_f(ninodo,nbytes) == 1){
+        if(mi_truncar_f(ninodo,nbytes) == -1){
             fprintf(stderr, "Error en mi_truncar_f\n");
-            exit(EXIT_FAILURE);
+            exit(-1);
         }
     }
 
@@ -71,9 +71,9 @@ int main(int argc, char **argv){
     printf("numBloquesOcupados=%d\n",stat.numBloquesOcupados);
 
     //Y finalmente desmontamos el dispositivo
-    if(bumount() == 1){
+    if(bumount() == -1){
         fprintf(stderr,"Error al desmontar.\n");
-        return EXIT_FAILURE;
+        return -1;
     }
 
 }

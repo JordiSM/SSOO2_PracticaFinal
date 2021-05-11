@@ -15,11 +15,11 @@ int main(int argc, char **argv){
     if(argc < 2){
         fprintf(stderr, "Error, número de argumentos no válidos\n");
         fprintf(stderr, "Formato de uso :\n\t./escribir \"nombre_de_memoria\" \"$(cat fichero)\" \"diferentes_inodos\"");
-        exit(EXIT_FAILURE);
+        exit(-1);
     }
     //montamos la pila
-    if(bmount(argv[1]) == EXIT_FAILURE){
-        exit(EXIT_FAILURE);
+    if(bmount(argv[1]) == -1){
+        exit(-1);
     }
 
     int nbytes = strlen(argv[2]);
@@ -39,7 +39,7 @@ int main(int argc, char **argv){
         //Si es menos uno, desmontamos el dispositivo
         if(ninodo1 == -1){
             bumount();
-            exit(EXIT_FAILURE);
+            exit(-1);
         }
         printf("\n\n");
         printf("Nº inodo reservado: %d\n", ninodo1);
@@ -63,7 +63,7 @@ int main(int argc, char **argv){
         //Si es menos uno, desmontamos el dispositivo
         if(ninodo2 == -1){
             bumount();
-            exit(EXIT_FAILURE);
+            exit(-1);
         }
         printf("\n\n");
         printf("Nº inodo reservado: %d\n", ninodo2);
@@ -84,7 +84,7 @@ int main(int argc, char **argv){
         //Si es menos uno, desmontamos el dispositivo
         if(ninodo3 == -1){
             bumount();
-            exit(EXIT_FAILURE);
+            exit(-1);
         }
         printf("\n\n");
         printf("Nº inodo reservado: %d\n", ninodo3);
@@ -106,7 +106,7 @@ int main(int argc, char **argv){
         //Si es menos uno, desmontamos el dispositivo
         if(ninodo4 == -1){
             bumount();
-            exit(EXIT_FAILURE);
+            exit(-1);
         }
         printf("\n\n");
         printf("Nº inodo reservado: %d\n", ninodo4);
@@ -128,7 +128,7 @@ int main(int argc, char **argv){
         //Si es menos uno, desmontamos el dispositivo
         if(ninodo5 == -1){
             bumount();
-            exit(EXIT_FAILURE);
+            exit(-1);
         }
         printf("\n\n");
         printf("Nº inodo reservado: %d\n", ninodo5);
@@ -151,7 +151,7 @@ int main(int argc, char **argv){
         //en caso de ser menos uno desmontamos el dispositivo
         if(ninodo1 == -1){
             bumount();
-            exit(EXIT_FAILURE);
+            exit(-1);
         }
         printf("Nº inodo reservado: %d\n", ninodo1);
         
