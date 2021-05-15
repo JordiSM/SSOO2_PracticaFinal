@@ -1,3 +1,9 @@
+/*
+AUTORES: 
+    Diaz Jimenez, Iker
+    Moreno Martínez, Jogil
+    Sevilla Marí, Jordi
+*/
 
 #include "directorios.h"
 
@@ -6,7 +12,7 @@ int main (int argc, char **argv) {
     int permisos;
 
     if(argc < 4) {
-        fprintf(stderr, "Modo de uso: ./mi_mkdir \"disco\" \"permisos \" \"path\" \n");
+        fprintf(stderr, "Sintaxis: ./mi_mkdir <disco> <permisos> </ruta> \n");
         return EXIT_FAILURE;
     }
 
@@ -18,11 +24,12 @@ int main (int argc, char **argv) {
         fprintf(stderr, "Error, introducir permisos válidos (0 - 7)\n");
         return EXIT_FAILURE;
     }
-    if(path[strlen(path) - 1] != '/'){
+    
+    /*if(path[strlen(path) - 1] != '/'){
         fprintf(stderr, "Error: no es un directorio\n");
         fprintf(stderr, "Debe acabar con '/' \n");
         return EXIT_FAILURE;
-    }
+    }*/
 
     if(bmount(disco) == EXIT_FAILURE){
         fprintf(stderr, "Error al montar el dispositivo");

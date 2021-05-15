@@ -5,7 +5,7 @@ AUTORES:
     Sevilla Marí, Jordi
 */
 
-#include "ficheros_basico.h"
+#include "ficheros.h"
 #define tambuffer 1500  //Tamaño buffer
 
 int main(int argc, char **argv){

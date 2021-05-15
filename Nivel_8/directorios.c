@@ -62,9 +62,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
   
     
     if ((inodo_dir.permisos & 4) != 4) { 
-        #if DEBUG    
         fprintf(stderr, "[buscar_entrada()→ El inodo %d no tiene permisos de lectura]\n", *p_inodo_dir);
-        #endif
         return ERROR_PERMISO_LECTURA;
     }
 
@@ -106,13 +104,13 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                     if(tipo == 'd'){
                         if(strcmp(final , "/") == 0){
                             entrada.ninodo = reservar_inodo('d', permisos);
-                            fprintf(stderr,"[buscar_entrada()→ reservado inodo %d tipo d con permisos %d]\n", entrada.ninodo, permisos);
+                            fprintf(stderr,"[buscar_entrada()→ reservado inodo %d tipo d con permisos %d para %s]\n", entrada.ninodo, permisos, entrada.nombre);
                         } else {
                             return ERROR_NO_EXISTE_DIRECTORIO_INTERMEDIO;
                         }
                     } else {
                         entrada.ninodo = reservar_inodo('f', permisos);
-                        fprintf(stderr,"[buscar_entrada()→ reservado inodo %d tipo f con permisos %d]\n", entrada.ninodo, permisos);
+                        fprintf(stderr,"[buscar_entrada()→ reservado inodo %d tipo f con permisos %d para %s]\n", entrada.ninodo, permisos, entrada.nombre);
                     }
 
                     if(mi_write_f(*p_inodo_dir, &entrada, num_entrada_inodo * sizeof(struct entrada), sizeof(struct entrada)) == EXIT_FAILURE){
@@ -168,3 +166,115 @@ int mi_creat(const char *camino, unsigned char permisos) {
     return buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 1, permisos);
 }
 
+int mi_chmod(const char *camino, unsigned char permisos) {
+    unsigned int p_inodo_dir = 0, p_inodo = 0, p_entrada = 0;
+    int error;
+
+    if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, permisos)) < 0){
+        return error;
+    }
+
+    return mi_chmod_f(p_inodo, permisos);
+}
+
+int mi_stat(const char *camino, struct STAT *p_stat) {
+    unsigned int p_inodo_dir = 0, p_inodo = 0, p_entrada = 0;
+    int error;
+
+    if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 4)) < 0){
+        return error;
+    }
+
+    return mi_stat_f(p_inodo, p_stat);
+}
+
+/**
+ * Pone el contenido de un directorio en un buffer de memoria.
+ * Devuelve el número de entradas o un valor menor que 0 en caso de error.
+ */
+int mi_dir(const char *camino, char *buffer) {
+
+    struct inodo inodo;
+    unsigned int p_inodo_dir = 0, p_inodo = 0, p_entrada = 0, num_entradas;
+    int error;
+    char tamBytes[16], tipo[2];
+
+    if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 4)) < 0) return error;
+
+    if (leer_inodo(p_inodo, &inodo) == -1) return -1;
+
+    if (inodo.tipo != 'd') return -1;
+
+    if ((inodo.permisos & 4) != 4) return -1; // Comprobamos el permiso de lectura que tiene el inodo.
+
+    //Guardamos la cantidad de entradas
+    num_entradas = inodo.tamEnBytesLog / sizeof(struct entrada);
+    //Utilizamos un buffer para que no haya que acceder al dispositivo cada vez que haya que leer una entrada
+    struct entrada buffer_entradas[num_entradas];
+
+    //Lectura de la entrada
+    if (mi_read_f(p_inodo, &buffer_entradas, 0, sizeof(struct entrada) * num_entradas) == -1) return -1;
+
+    strcpy(buffer, "");
+
+    for (int i = 0; i < num_entradas; i++) {
+
+        //Lectura inodo
+        if (leer_inodo(buffer_entradas[i].ninodo, &inodo) == -1) return -1;
+        
+        if (inodo.tipo == 'd') {
+            strcat(buffer, "\x1b[32m");
+        }else{
+            strcat(buffer, "\x1b[33m");
+        }
+
+        //Para cada entrada concatenamos su nombre al buffer e incorporamos la información del inodo
+        sprintf(tipo, "%c", inodo.tipo);
+        strcat(buffer, tipo);
+        strcat(buffer, "\t\t");
+
+        if ((inodo.permisos & 4) == 4) {
+            strcat(buffer, "r");
+        } else {
+            strcat(buffer, "-");
+        }
+
+        if ((inodo.permisos & 2) == 2) {
+            strcat(buffer, "w");
+        } else {
+            strcat(buffer, "-");
+        }
+
+        if ((inodo.permisos & 1) == 1) {
+            strcat(buffer, "x");
+        } else {
+            strcat(buffer, "-");
+        }
+
+        strcat(buffer, "\t");
+
+        struct STAT p_stat;
+        struct tm *ts;
+        char atime[80];
+        char mtime[80];
+        char ctime[80];
+        ts = localtime(&p_stat.atime);
+	    strftime(atime, sizeof(atime), "%a %Y-%m-%d %H:%M:%S", ts);
+	    ts = localtime(&p_stat.mtime);
+	    strftime(mtime, sizeof(mtime), "%a %Y-%m-%d %H:%M:%S", ts);
+        strcat(buffer, mtime);
+	    ts = localtime(&p_stat.ctime);
+	    strftime(ctime, sizeof(ctime), "%a %Y-%m-%d %H:%M:%S", ts);
+        strcat(buffer, "\t\t");
+        //retorna el número de carácteres escritos al array
+        sprintf(tamBytes, "%d", inodo.tamEnBytesLog);
+        strcat(buffer, tamBytes);
+        strcat(buffer, "\t\t\t");
+        strcat(buffer, buffer_entradas[i].nombre);
+        strcat(buffer, "\033[0m");
+        strcat(buffer, "\n");
+    }
+
+    //Devolvemos el número de entradas
+    return num_entradas;
+}

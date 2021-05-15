@@ -1,3 +1,9 @@
+/*
+AUTORES: 
+    Diaz Jimenez, Iker
+    Moreno Martínez, Jogil
+    Sevilla Marí, Jordi
+*/
 
 #include "ficheros.h"
 
@@ -31,7 +37,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
 void mostrar_error_buscar_entrada(int error);
 //funciones nivel 8:
 int mi_creat(const char *camino, unsigned char permisos);
-int mi_dir(const char *camino, char *buffer, char tipo);
+int mi_dir(const char *camino, char *buffer);
 int mi_chmod(const char *camino, unsigned char permisos);
 int mi_stat(const char *camino, struct STAT *stat);
 //funciones nivel 9:

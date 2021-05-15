@@ -5,7 +5,7 @@ AUTORES:
     Sevilla Marí, Jordi
 */
 
-#include "ficheros_basico.h"
+#include "ficheros.h"
 
 //Escribirá texto en uno o varios inodos haciendo uso de reservar_inodo para obtener un nº de inodo, ninodo, 
 //que mostraremos por pantalla y además utilizaremos como parámetro para mi_write_f()
