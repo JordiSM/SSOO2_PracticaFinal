@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
         mostrar_error_buscar_entrada(mi_stat_err);
     } else {
         printf("tipo: %c\n", p_stat.tipo);
-        printf("permisos: %c\n",p_stat.permisos);
+        printf("permisos: %d\n", p_stat.permisos);
         struct tm *ts;
         char atime[80];
         char mtime[80];

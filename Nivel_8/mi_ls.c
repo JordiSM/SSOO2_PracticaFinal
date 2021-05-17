@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
         printf("Total: %d\n", mi_dir_error);
         
         if (mi_dir_error > 0) { //y visualizamos los campos correspondientes
-            printf("\033[1;34mTipo\t\tModo\tmTime\t\t\t\tTamaño\tNombre\033[0m\n"); //¡¡¡CAMBIAR ORDEN!!!!!
+            printf("\033[1;34mTipo\t\tModo\tmTime\t\t\t\tTamaño\t\tNombre\033[0m\n");
             printf("%s", buffer);
         }
     }

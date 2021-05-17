@@ -21,7 +21,7 @@ int main (int argc, char **argv) {
     path = argv[3];
 
     if(permisos < 0 || permisos > 7){
-        fprintf(stderr, "Error, introducir permisos válidos (0 - 7)\n");
+        fprintf(stderr, "Error: modo inválido: <<9>> \n");
         return EXIT_FAILURE;
     }
     

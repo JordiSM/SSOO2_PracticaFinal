@@ -269,7 +269,7 @@ int mi_dir(const char *camino, char *buffer) {
         //retorna el número de carácteres escritos al array
         sprintf(tamBytes, "%d", inodo.tamEnBytesLog);
         strcat(buffer, tamBytes);
-        strcat(buffer, "\t\t\t");
+        strcat(buffer, "\t\t");
         strcat(buffer, buffer_entradas[i].nombre);
         strcat(buffer, "\033[0m");
         strcat(buffer, "\n");
@@ -277,4 +277,22 @@ int mi_dir(const char *camino, char *buffer) {
 
     //Devolvemos el número de entradas
     return num_entradas;
+}
+
+
+//MOVER ESTO AL NIVEL 9
+int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes) {
+    int bytesLeidos, error;
+    unsigned int p_inodo_dir = 0, p_inodo = 0, p_entrada = 0;
+    
+    if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 4)) < 0){
+        mostrar_error_buscar_entrada(error);
+        return EXIT_FAILURE;
+    }
+    
+    if((bytesLeidos = mi_read_f(p_inodo, &buf, offset, nbytes)) < 0){
+        fprintf(stderr, "Error en mi_read \n");
+        return EXIT_FAILURE;
+    }
+    return bytesLeidos;
 }
