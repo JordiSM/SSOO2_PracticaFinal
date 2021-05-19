@@ -36,8 +36,8 @@ int main(int argc, char **argv) {
     }
 
     //Creamos el enlace de una entrada de directorio 
-    if ((mi_link_err = mi_link(ruta_fichero_original, ruta_enlace)) < 0) {
-        mostrar_error_buscar_entrada(mi_link_err);
+    if ((mi_link_error = mi_link(ruta_fichero_original, ruta_enlace)) < 0) {
+        mostrar_error_buscar_entrada(mi_link_error);
     }
 
     //Desmontamos dispositivo
