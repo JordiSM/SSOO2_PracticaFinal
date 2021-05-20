@@ -35,6 +35,7 @@ int main(int argc, char **argv) {
     //Comprobamos que tiene permisos de escritura
     if ((mi_write_error = mi_write(ruta, argv[3], offset, nbytes)) < 0) {
         mostrar_error_buscar_entrada(mi_write_error);
+        printf("Bytes escritos: 0\n");
     } else { //Mostramos la cantidad de bytes
         printf("Bytes escritos: %d\n", mi_write_error);
     }

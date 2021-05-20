@@ -21,7 +21,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
 
     //Comprobamos en caso de que no sea un permiso de escritura
     if((inodo.permisos & 2) != 2){
-        fprintf(stderr, "Error inodo permisos mi_write_f %d: %s\n", errno, strerror(errno));
+        fprintf(stderr, "No hay permisos de escritura. \n");
         return -1;
     }
 
@@ -339,7 +339,7 @@ int mi_truncar_f(unsigned int ninodo, unsigned int nbytes){
             return -1;
         }
         // Devolución de la cantidad de bloques liberados
-        fprintf(stdout, "Bloques liberados: %d\n", bloquesLiberados);
+        //fprintf(stdout, "Bloques liberados: %d\n", bloquesLiberados);
 
         return bloquesLiberados;
     } else {

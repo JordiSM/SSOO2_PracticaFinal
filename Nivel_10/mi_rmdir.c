@@ -4,21 +4,22 @@ int main(int argc, char *argv[]){
     
     char *ruta, *nomDispositivo;
     int error;
+
     if (argc != 3) {
-        fprintf(stderr, "Sintaxis: ./mi_rm disco /ruta\n");
+        fprintf(stderr, "Sintaxis: ./mi_rmdir disco /ruta\n");
         return -1;
     }
 
     nomDispositivo = argv[1];
     ruta = argv[2];
 
-    if(ruta[strlen(ruta) - 1] == '/') {
-        fprintf(stderr, "Error: %s es un directorio.\n", ruta);
+    if(ruta[strlen(ruta) - 1] != '/') {
+        fprintf(stderr, "Error: %s es un fichero.\n", ruta);
         return -1;
     }
     
     if (bmount(nomDispositivo) == -1) {
-        fprintf(stderr, "Error en bmount en mi_rm.c \n");
+        fprintf(stderr, "Error en bmount en mi_rmdir.c \n");
         return -1;
     }
 

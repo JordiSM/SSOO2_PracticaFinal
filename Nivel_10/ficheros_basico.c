@@ -616,7 +616,7 @@ int liberar_inodo(unsigned int ninodo){
         return -1;
     }
 
-    fprintf(stdout, "Bloques liberados: %d", bloquesLibres);
+    //fprintf(stdout, "Bloques liberados: %d\n", bloquesLibres);
 
     //Debería quedar a 0
     inodo.numBloquesOcupados -= bloquesLibres;
@@ -681,7 +681,7 @@ int liberar_bloques_inodo(unsigned int primerBL,struct inodo *inodo){
     memset(bufAux_punteros, 0 , BLOCKSIZE);
     ptr = 0;
 
-    printf("[liberar_bloques_inodo()→ primer BL %d, ultimo BL %d]\n", primerBL, ultimoBL);
+    //printf("[liberar_bloques_inodo()→ primer BL %d, ultimo BL %d]\n", primerBL, ultimoBL);
 
     for (nBL = primerBL; nBL <= ultimoBL; nBL++){
         nRangoBL = obtener_nRangoBL(*inodo,nBL, &ptr);
@@ -715,7 +715,7 @@ int liberar_bloques_inodo(unsigned int primerBL,struct inodo *inodo){
                 inodo->punterosDirectos[nBL] = 0;
             } else{
                 nivel_punteros = 1;
-                printf("[liberar_bloques_inodo()→ liberado BF %d de datos para BL %d)]\n", ptr, nBL);
+                //printf("[liberar_bloques_inodo()→ liberado BF %d de datos para BL %d)]\n", ptr, nBL);
     
                 while(nivel_punteros <= nRangoBL){
                     indice = indices[nivel_punteros-1];
@@ -727,7 +727,7 @@ int liberar_bloques_inodo(unsigned int primerBL,struct inodo *inodo){
                         liberar_bloque(ptr);
                         liberados++;
 
-                        printf("[liberar_bloques_inodo()→ liberado BF = %d nivel_punteros%d correspondiente BL %d)]\n", ptr, nivel_punteros, nBL);
+                        //printf("[liberar_bloques_inodo()→ liberado BF = %d nivel_punteros%d correspondiente BL %d)]\n", ptr, nivel_punteros, nBL);
 
                         if(nivel_punteros == nRangoBL){
                             inodo->punterosIndirectos[nRangoBL-1]= 0;
@@ -748,6 +748,6 @@ int liberar_bloques_inodo(unsigned int primerBL,struct inodo *inodo){
         }
    }
 
-    printf("[liberar_bloques_inodo()→ total bloques liberados: %d\n", liberados);
+    //printf("[liberar_bloques_inodo()→ total bloques liberados: %d\n", liberados);
     return liberados;
 }
