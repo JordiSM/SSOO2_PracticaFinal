@@ -150,7 +150,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
 
     //Lectura del inodo
     if(leer_inodo(ninodo, &inodo) == -1){
-        fprintf(stderr, "Error leer inodo %d: %s\n", errno, strerror(errno));
+        fprintf(stderr, "Error leer inodo\n");
         return -1;
     }
 

@@ -38,7 +38,7 @@ int main(int argc, char *argv[]){
         bytesLeidos = mi_read(argv[2], buffer, off, TAM_BUFFER);
     }
 
-    printf("\nTotal de Bytes leidos: %d\n", totalBytesLeidos);
+    //fprintf(stdout, "\nTotal de Bytes leidos: %d\n", totalBytesLeidos);
 
     if(bumount() == -1) {
         fprintf(stderr, "Error en bumount de mi_cat.c\n");
