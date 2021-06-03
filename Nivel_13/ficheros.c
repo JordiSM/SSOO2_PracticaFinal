@@ -7,6 +7,9 @@ AUTORES:
 
 #include "ficheros.h"
 
+/*************************************************************************************************
+Escribe el contenido procedente de un buffer de memoria, buf_original, de tamaño nbytes, en un fichero/directorio
+*************************************************************************************************/
 int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offset, unsigned int nbytes){
     struct inodo inodo;
     char buf_bloque[BLOCKSIZE];
@@ -155,6 +158,9 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
     
 }
 
+/*************************************************************************************************
+* Lee información de un fichero/directorio y la almacena en un buffer de memoria
+**************************************************************************************************/
 int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsigned int nbytes){
 
     struct inodo inodo;
@@ -265,7 +271,9 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
     return leidos;
 }
 
-//Cambia los permisos de un fichero/directorio
+/*************************************************************************************************
+* Cambia los permisos de un fichero/directorio
+**************************************************************************************************/
 int mi_chmod_f(unsigned int ninodo, unsigned char permisos){
     mi_waitSem();
     struct inodo inodo;
@@ -287,7 +295,10 @@ int mi_chmod_f(unsigned int ninodo, unsigned char permisos){
     return resultado;
 }
 
-//Devuelve la metainformación de un fichero/directorio con el valor que indique el argumento permisos
+/*************************************************************************************************
+* Devuelve la metainformación de un fichero/directorio con el
+* valor que indique el argumento permisos
+**************************************************************************************************/
 int mi_stat_f(unsigned int ninodo, struct STAT *p_stat){
 
     struct inodo inodo;
@@ -313,6 +324,10 @@ int mi_stat_f(unsigned int ninodo, struct STAT *p_stat){
     return EXIT_SUCCESS;
 }
 
+/*************************************************************************************************
+* Trunca un fichero/directorio a los bytes indicados 
+* como nbytes, liberando los bloques necesarios.
+**************************************************************************************************/
 int mi_truncar_f(unsigned int ninodo, unsigned int nbytes){
 
     struct inodo inodo;

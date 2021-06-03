@@ -7,6 +7,9 @@ AUTORES:
 
 #include "ficheros_basico.h"
 
+/*************************************************************************************************
+* Calcula el tamaño en bloques necesario para el mapa de bits.
+**************************************************************************************************/
 int tamMB(unsigned int nbloques){ 
     
     int tamMB = (nbloques/8)/BLOCKSIZE;
@@ -18,6 +21,9 @@ int tamMB(unsigned int nbloques){
     return tamMB;
 }
 
+/*************************************************************************************************
+* Calcula el tamaño en bloques del array de inodos.
+**************************************************************************************************/
 int tamAI(unsigned int ninodos){
 
     int tamAI = (ninodos * INODOSIZE) / BLOCKSIZE;
@@ -29,6 +35,9 @@ int tamAI(unsigned int ninodos){
     return tamAI;
 }
 
+/*************************************************************************************************
+* Inicializa los datos del superbloque.
+**************************************************************************************************/
 int initSB(unsigned int nbloques, unsigned int ninodos){   
 
     struct superbloque SB;
@@ -49,6 +58,9 @@ int initSB(unsigned int nbloques, unsigned int ninodos){
     return bwrite(posSB, &SB);
 }
 
+/*************************************************************************************************
+* Inicializa el mapa de bits.
+**************************************************************************************************/
 int initMB(){
     
     struct superbloque SB;
@@ -82,6 +94,9 @@ int initMB(){
     return bwrite(0, &SB);
 }
 
+/*************************************************************************************************
+* Inicializa la lista de inodos libres
+**************************************************************************************************/
 int initAI(){
 
     struct inodo inodos[BLOCKSIZE/INODOSIZE];
@@ -124,6 +139,9 @@ int initAI(){
     return 0;
 }
 
+/*************************************************************************************************
+* Escribe el valor indicado por el parámetro
+**************************************************************************************************/
 int escribir_bit(unsigned int nbloque, unsigned int bit){
 
     struct superbloque SB;
@@ -167,6 +185,9 @@ int escribir_bit(unsigned int nbloque, unsigned int bit){
     return bwrite(nbloqueabs, bufferMB);
 }
 
+/*************************************************************************************************
+* Lee un determinado bit del MB y devuelve el valor del bit leído.
+**************************************************************************************************/
 char leer_bit(unsigned int nbloque){
 
     struct superbloque SB;
@@ -210,6 +231,9 @@ char leer_bit(unsigned int nbloque){
     return mascara;
 }
 
+/*************************************************************************************************
+* Encuentra el primer bloque libre, consultando el MB, lo ocupa.
+**************************************************************************************************/
 int reservar_bloque(){
     struct superbloque SB;
     unsigned int posBloqueMB, posbyte;
@@ -264,11 +288,6 @@ int reservar_bloque(){
     //Para determinar el bloque que podemos reservar
     unsigned int nbloque = ((posBloqueMB - SB.posPrimerBloqueMB) * BLOCKSIZE + posbyte) * 8 + posbit;
 
-    //printf("posbit: %d \n\n", posbit);
-    //printf("posbyte: %d \n\n", posbyte);
-    //printf("%d \n\n", nbloque);
-    //printf("%d \n\n", posBloqueMB);
-
     //Escribimos para indicar que ese bloque está reservado
     if(escribir_bit(nbloque, 1) == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
@@ -296,6 +315,9 @@ int reservar_bloque(){
     return nbloque;
 }
 
+/*************************************************************************************************
+* Libera un bloque determinado 
+**************************************************************************************************/
 int liberar_bloque(unsigned int nbloque){
     struct superbloque SB;
 
@@ -324,6 +346,10 @@ int liberar_bloque(unsigned int nbloque){
     return nbloque;
 }
 
+/*************************************************************************************************
+* Escribe el contenido de una variable de tipo struct 
+* inodo en un determinado inodo del array de inodos
+**************************************************************************************************/
 int escribir_inodo(unsigned int ninodo, struct inodo inodo){
     struct inodo inodos[BLOCKSIZE/INODOSIZE]; 
     struct superbloque SB;
@@ -352,6 +378,10 @@ int escribir_inodo(unsigned int ninodo, struct inodo inodo){
     return bwrite(pos_bloque, inodos);
 }
 
+/*************************************************************************************************
+* Lee un determinado inodo del array de inodos 
+* para volcarlo en una variable de tipo struct inodo 
+**************************************************************************************************/
 int leer_inodo(unsigned int ninodo, struct inodo *inodo){
     struct inodo inodos[BLOCKSIZE/INODOSIZE];
     struct superbloque SB;
@@ -379,6 +409,10 @@ int leer_inodo(unsigned int ninodo, struct inodo *inodo){
     return 0;
 }
 
+/*************************************************************************************************
+* Encuentra el primer inodo libre, lo reserva, 
+* devuelve su número y actualiza la lista enlazada de inodos libres
+**************************************************************************************************/
 int reservar_inodo(unsigned char tipo, unsigned char permisos){
 
     struct superbloque SB;
@@ -444,6 +478,9 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos){
     return posInodoReservado;
 }
 
+/*************************************************************************************************
+* Obtiene el rango de punteros en el que se sitúa el bloque lógico que buscamos
+**************************************************************************************************/
 int obtener_nRangoBL (struct inodo inodo, unsigned int nblogico, unsigned int *ptr){
     if(nblogico < DIRECTOS){
         *ptr = inodo.punterosDirectos[nblogico];
@@ -464,6 +501,9 @@ int obtener_nRangoBL (struct inodo inodo, unsigned int nblogico, unsigned int *p
     }
 }
 
+/*************************************************************************************************
+* Generaliza la obtención de los índices de los bloques de punteros.
+**************************************************************************************************/
 int obtener_indice (unsigned int nblogico, unsigned int nivel_punteros){
     
     if(nblogico < DIRECTOS){
@@ -506,6 +546,10 @@ int obtener_indice (unsigned int nblogico, unsigned int nivel_punteros){
     return -1;
 }
 
+/*************************************************************************************************
+* Obtiene el nº  de bloque físico correspondiente 
+* a un bloque lógico determinado del inodo indicado
+**************************************************************************************************/
 int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reservar){
     struct inodo inodo;
     unsigned int ptr;
@@ -597,7 +641,9 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
     return ptr;
 }
 
-
+/*************************************************************************************************
+* Elimina el inodo completo
+**************************************************************************************************/
 int liberar_inodo(unsigned int ninodo){
     struct inodo inodo;
     struct superbloque SB;
@@ -651,7 +697,9 @@ int liberar_inodo(unsigned int ninodo){
     return EXIT_SUCCESS;    
 }
 
-//libera todos los bloques ocupados
+/*************************************************************************************************
+*  libera todos los bloques ocupados
+**************************************************************************************************/
 int liberar_bloques_inodo(unsigned int primerBL,struct inodo *inodo){
     unsigned int nivel_punteros, indice, ptr, nBL, ultimoBL;
 

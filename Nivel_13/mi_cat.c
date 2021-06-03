@@ -8,22 +8,16 @@ AUTORES:
 #include "directorios.h"
 #define TAM_BUFFER 1500
 
-//Muestra todo el contenido de un fichero
-
 int main(int argc, char *argv[]){
 
-    //char *ruta, *nomDispositivo;
     int bytesLeidos, off, totalBytesLeidos;
     unsigned char buffer[TAM_BUFFER];
     
+    //Comprobamos el número de argumentos es correcto
     if(argc != 3) {
         fprintf(stderr, "Sintaxis: ./mi_cat <disco> </ruta_fichero> \n");
         return -1;
     }
-
-    //nomDispositivo = argv[1];
-    //ruta = argv[2];
-
 
     //Comprobamos que la ruta corresponde a un fichero
     if(argv[2][strlen(argv[2]) - 1] == '/') {
@@ -37,11 +31,13 @@ int main(int argc, char *argv[]){
         return EXIT_FAILURE;
     }
 
+    //Inicializamos variables y buffer a 0
     off = 0;
     totalBytesLeidos = 0;
     memset(buffer, 0, TAM_BUFFER);
     bytesLeidos = mi_read(argv[2], buffer, off, TAM_BUFFER);
 
+    //Bucle para leer mientras queden por leer
     while(bytesLeidos > 0) {
         write(1, buffer, bytesLeidos);
         memset(buffer, 0, TAM_BUFFER);

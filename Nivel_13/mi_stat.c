@@ -13,6 +13,7 @@ int main(int argc, char **argv) {
     char *nombre_dispositivo, *ruta;
     int mi_stat_err;
 
+    //Comprobamos numero de argumentos
     if (argc != 3) {
         fprintf(stderr, "Formato incorrecto: ./mi_stat <disco> </ruta>\n");
         return EXIT_FAILURE;
@@ -21,14 +22,18 @@ int main(int argc, char **argv) {
     nombre_dispositivo = argv[1];
     ruta = argv[2];
 
+    //Montamos dispositivo
     if (bmount(nombre_dispositivo) == 1) {
         fprintf(stderr, "Error en bmount\n");
         return EXIT_FAILURE;
     }
 
+    //Llamamos a la función mi_stat
     if ((mi_stat_err = mi_stat(ruta, &p_stat)) < 0) {
         mostrar_error_buscar_entrada(mi_stat_err);
     } else {
+
+        //Imprimimos todos los datos necesarios
         printf("tipo: %c\n", p_stat.tipo);
         printf("permisos: %d\n", p_stat.permisos);
         
@@ -51,6 +56,7 @@ int main(int argc, char **argv) {
         printf("numBloquesOcupados: %d\n", p_stat.numBloquesOcupados);
     }
     
+    //Desmontamos dispositivo
     if (bumount() == 1) {
         fprintf(stderr, "Error en bumount\n");
         return EXIT_FAILURE;

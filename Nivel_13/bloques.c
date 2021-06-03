@@ -13,10 +13,10 @@ static int descriptor = 0;
 static sem_t *mutex;
 static unsigned int inside_sc = 0;
 
-/*
-    Esta función monta el dispositivo virtual. Recibe como parámetro el PATH. Devuelve un entero
-    con el valor del descriptor si ha ido bien, o -1 en caso contrario
-*/
+/*************************************************************************************************
+* Esta función monta el dispositivo virtual. Recibe como parámetro el PATH. Devuelve un entero
+* con el valor del descriptor si ha ido bien, o -1 en caso contrario
+*************************************************************************************************/
 int bmount(const char *camino){     //
     umask(000);
     descriptor = open(camino, O_RDWR|O_CREAT, 0666 );
@@ -37,10 +37,10 @@ int bmount(const char *camino){     //
     return descriptor;
 }
 
-/*
-    Función encargada de desmontar el dispositivo virtual. Devuelve el valor -1 en caso de error,
-    por el contrario devuelve 0.
-*/
+/*************************************************************************************************
+* Función encargada de desmontar el dispositivo virtual. Devuelve el valor -1 en caso de error,
+* por el contrario devuelve 0.
+*************************************************************************************************/
 int bumount(){
     int estado = close(descriptor);
     
@@ -55,11 +55,12 @@ int bumount(){
 }
 
 
-/*
-    Función encargada de escribir un bloque en el dispositivo virtual. el parámetro nbloque, es el lugar a escribir,
-    y buf es un puntero dirigido a un buffer de memorio que se volcará en el dispositivo virtual. Si la función
-    ha sido exitosa devolverá el número de bytes escritos, en caso contrario devolverá -1.
-*/
+/*************************************************************************************************
+* Función encargada de escribir un bloque en el dispositivo virtual. el parámetro nbloque, es el lugar a escribir,
+* y buf es un puntero dirigido a un buffer de memorio que se volcará en el dispositivo virtual. Si la función
+* ha sido exitosa devolverá el número de bytes escritos, en caso contrario devolverá -1.
+*************************************************************************************************/
+
 int bwrite(unsigned int nbloque, const void *buf){
 
     off_t desplazamiento = nbloque * BLOCKSIZE;
@@ -78,11 +79,12 @@ int bwrite(unsigned int nbloque, const void *buf){
 }
 
 
-/*
+/*************************************************************************************************
     Función encargada de leer en el bloque del dispositivo virtual. Recibe por parámetro el bloque
     que va a leer y el buffer de memoria en el que se volcará. Devuelve un entero, -1 en caso de error
     o BLOCKSIZE si ha ido bien
-*/
+*************************************************************************************************/
+
 int bread(unsigned int nbloque, void *buf){
 
     off_t desplazamiento = nbloque * BLOCKSIZE;
