@@ -193,8 +193,8 @@ int mi_creat(const char *camino, unsigned char permisos) {
 }
 
 /*************************************************************************************************
-* Cambia los permisos de un fichero o directorio
-/*************************************************************************************************/
+* Cambia los permisos de un fichero o directorio                                               
+*************************************************************************************************/
 int mi_chmod(const char *camino, unsigned char permisos) {
     unsigned int p_inodo_dir = 0, p_inodo = 0, p_entrada = 0;
     int error;
